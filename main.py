@@ -1,112 +1,151 @@
-print("Hello second branch! ")
-
 import shutil
 import use_functions
 import victory
 import sys
 import os
 
-
-
-def Invitation():
-    print("\nМеню:\n\n"
-      "1  создать папку\n"
-      "2  удалить (файл/папку)\n"
-    "3  копировать (файл/папку)\n"
-    "4  просмотр содержимого рабочей директории\n"
-    "5  посмотреть только папки\n"
-    "6  посмотреть только файлы\n"
-    "7  просмотр информации об операционной системе\n"
-    "8  создатель программы\n"
-    "9  играть в викторину\n"
-    "10 мой банковский счет\n"
-    "11 смена рабочей директории (*необязательный пункт)\n"
-    "12 выход.")
-    SelectedAction = input("Введите ваш выбор: ")
-    if SelectedAction.isdigit():
-        SelectedAction = int(SelectedAction)
+def ActionPrint(printline, OutputTo="console"):
+    """
+    :param printline: what to print
+    :return:
+    """
+    if OutputTo == "console":
+        print(printline)
+        return printline
     else:
-        print("ОШИБКА. Введите число, другие вводы недопустимы.")
-        SelectedAction = 0
-    return SelectedAction
-
-SelectedAction = Invitation()
+        pass
 
 
-while SelectedAction != 12:
-    if SelectedAction == 1: # создать папку
-        CreateDirName = input("Как назвать создаваемую папку? ")
-        if not os.path.exists(CreateDirName):
-            os.mkdir(CreateDirName)
-            print("УРА. папка {} успешно создана.".format(CreateDirName))
+def ActionInput(requestline, OutputTo="console"):
+    if OutputTo == "console":
+        InputData = input(requestline)
+        return InputData
+    else:
+        pass
+
+def Invitation(PreSelectedAction = 0, OutputTo="console"):
+    if(PreSelectedAction == 0):
+        ActionPrint("\nМеню:\n\n"
+          "1  создать папку\n"
+          "2  удалить (файл/папку)\n"
+        "3  копировать (файл/папку)\n"
+        "4  просмотр содержимого рабочей директории\n"
+        "5  посмотреть только папки\n"
+        "6  посмотреть только файлы\n"
+        "7  просмотр информации об операционной системе\n"
+        "8  создатель программы\n"
+        "9  играть в викторину\n"
+        "10 мой банковский счет\n"
+        "11 смена рабочей директории (*необязательный пункт)\n"
+        "12 выход.", OutputTo)
+        SelectedAction = ActionInput("Введите ваш выбор: ", OutputTo)
+        if SelectedAction.isdigit():
+            SelectedAction = int(SelectedAction)
         else:
-            print("ОШИБКА. папка {} уже существует. Оставляю как есть.".format(CreateDirName))
-        SelectedAction = Invitation()
-    elif SelectedAction == 2: # удалить (файл/папку)
-        RemoveDirName = input("Какую папку удалить? ")
-        if os.path.exists(RemoveDirName):
-            os.rmdir(RemoveDirName)
-            print("УРА. папка {} успешно удалена.".format(RemoveDirName))
+            ActionPrint("ОШИБКА. Введите число, другие вводы недопустимы.", OutputTo)
+            SelectedAction = 0
+        return SelectedAction
+    else:
+        SelectedAction = int(PreSelectedAction)
+        ActionPrint("Функция Invitation получила параметры PreSelectedAction = {}, OutputTo = {}".format(PreSelectedAction, OutputTo), OutputTo)
+        return SelectedAction
+
+def ActionMkDir(): # 1 создать папку
+    CreateDirName = ActionInput("Как назвать создаваемую папку? ")
+    if not os.path.exists(CreateDirName):
+        os.mkdir(CreateDirName)
+        ActionPrint("УРА. папка {} успешно создана.".format(CreateDirName))
+    else:
+        ActionPrint("ОШИБКА. папка {} уже существует. Оставляю как есть.".format(CreateDirName))
+
+def ActionRmFileDir(): # 2 удалить (файл/папку)
+    RemoveDirName = ActionInput("Какую папку удалить? ")
+    if os.path.exists(RemoveDirName):
+        os.rmdir(RemoveDirName)
+        ActionPrint("УРА. папка {} успешно удалена.".format(RemoveDirName))
+    else:
+        ActionPrint("ОШИБКА. папка {} не существует. Ничего не делаю.".format(RemoveDirName))
+
+def ActionCopyFileDir(): # 3 копировать (файл/папку)
+    CopyDirFileName = ActionInput("Какой файл или папку копировать? ")
+    CopyDirFileNameDestination = ActionInput("Как назвать файл или папку? ")
+    if os.path.exists(CopyDirFileNameDestination):
+        ActionPrint("ОШИБКА. папка или файл {} уже существует.".format(CopyDirFileNameDestination))
+        return False
+    elif not os.path.exists(CopyDirFileName):
+        ActionPrint("ОШИБКА. папка {} не существует. Ничего не делаю.".format(CopyDirFileName))
+        return False
+    else:
+        if os.path.isfile(CopyDirFileName):
+            shutil.copy(CopyDirFileName, CopyDirFileNameDestination)
         else:
-            print("ОШИБКА. папка {} не существует. Ничего не делаю.".format(RemoveDirName))
-        SelectedAction = Invitation()
-    elif SelectedAction == 3: # копировать (файл/папку)
-        CopyDirFileName = input("Какой файл или папку копировать? ")
-        CopyDirFileNameDestination = input("Как назвать файл или папку? ")
-        if os.path.exists(CopyDirFileNameDestination):
-            print("ОШИБКА. папка или файл {} уже существует.".format(CopyDirFileNameDestination))
-        elif not os.path.exists(CopyDirFileName):
-            print("ОШИБКА. папка {} не существует. Ничего не делаю.".format(CopyDirFileName))
-        else:
-            if os.path.isfile(CopyDirFileName):
-                shutil.copy(CopyDirFileName, CopyDirFileNameDestination)
-            else:
-                shutil.copytree(CopyDirFileName, CopyDirFileNameDestination)
-            print("УРА. Скопировал {} в {}".format(CopyDirFileName, CopyDirFileNameDestination))
-        SelectedAction = Invitation()
-    elif SelectedAction == 4: # просмотр содержимого рабочей директории
-        print("Содержимое текущей директории: ")
+            shutil.copytree(CopyDirFileName, CopyDirFileNameDestination)
+        ActionPrint("УРА. Скопировал {} в {}".format(CopyDirFileName, CopyDirFileNameDestination))
+        return True
+
+def ActionLsDir(key=""): # 4 просмотр содержимого рабочей директории
+    """
+    :param key: "" - everything, "-d" - only dirs, no subdirs, "-f" - only files, no subdirs
+    :return:
+    """
+    if key == "":
+        ActionPrint("Содержимое текущей директории: ")
         for x in os.listdir():
-            print(x)
-        print("УРА. Удалось показать всё содержимое директории!!! ВАУ!!!")
-        SelectedAction = Invitation()
-    elif SelectedAction == 5: # посмотреть только папки
+            ActionPrint(x)
+        ActionPrint("УРА. Удалось показать всё содержимое директории!!! ВАУ!!!")
+    elif key == "-d":
         onlydirs = [f for f in os.listdir() if os.path.isdir(f)]
-        print("Содержимое текущей директории (только директории): ")
+        ActionPrint("Содержимое текущей директории (только директории): ")
         for x in onlydirs:
-            print(x)
-        print("УРА. Удалось показать все директории!!! ВАУ!!!")
-        SelectedAction = Invitation()
-    elif SelectedAction == 6: # посмотреть только файлы
+            ActionPrint(x)
+        ActionPrint("УРА. Удалось показать все директории!!! ВАУ!!!")
+    elif key == "-f":
         onlyfiles = [f for f in os.listdir() if os.path.isfile(f)]
-        print("Содержимое текущей директории (только файлы): ")
+        ActionPrint("Содержимое текущей директории (только файлы): ")
         for x in onlyfiles:
-            print(x)
-        print("УРА. Удалось показать все файлы из директории!!! ВАУ!!!")
-        SelectedAction = Invitation()
-    elif SelectedAction == 7: # просмотр информации об операционной системе
-        print("sys.version_info: ", sys.version_info)
-        SelectedAction = Invitation()
-    elif SelectedAction == 8: # создатель программы
-        print("Программу сию написал Гэндальф Белый, о мой юный подаван.")
-    elif SelectedAction == 9: # играть в викторину
-        victory.Victorina()
-        SelectedAction = Invitation()
-    elif SelectedAction == 10: # мой банковский счет
-        use_functions.AccountManagement()
-        SelectedAction = Invitation()
-    elif SelectedAction == 11: # смена рабочей директории (*необязательный пункт)
-        print("текущая директория: os.curdir={}, os.getcwd()={}".format(os.curdir, os.getcwd()))
-        NewDir = input("Введите новую директорию: ")
-        if NewDir.find("\\"):
-            print("found \\")
-            os.chdir(NewDir)
-        else:
-            os.chdir(os.getcwd()+"\\"+NewDir)
-        print("текущая директория: os.curdir={}, os.getcwd()={}".format(os.curdir, os.getcwd()))
-        SelectedAction = Invitation()
-    elif SelectedAction == 12: # выход
-        break
+            ActionPrint(x)
+        ActionPrint("УРА. Удалось показать все файлы из директории!!! ВАУ!!!")
     else:
-        print("Ошибка, некорректный ввод.")
+        ActionPrint("ОШИБКА, функции передан неверный ключ.")
+
+def ActionChDir():
+    ActionPrint("текущая директория: os.getcwd()={}".format(os.getcwd()))
+    NewDir = ActionInput("Введите новую директорию: ")
+    if NewDir.find("\\"):
+#       ActionPrint("found \\")
+        os.chdir(NewDir)
+    else:
+        os.chdir(os.getcwd() + "\\" + NewDir)
+    ActionPrint("текущая директория: os.getcwd()={}".format(os.getcwd()))
+
+if __name__ == "__main__":
+    SelectedAction = Invitation()
+
+    while SelectedAction != 12:
+        if SelectedAction == 1: # создать папку
+            ActionMkDir()
+        elif SelectedAction == 2: # удалить (файл/папку)
+            ActionRmFileDir()
+        elif SelectedAction == 3: # копировать (файл/папку)
+            ActionCopyFileDir()
+        elif SelectedAction == 4: # просмотр содержимого рабочей директории
+            ActionLsDir()
+        elif SelectedAction == 5: # посмотреть только папки
+            ActionLsDir("-d")
+        elif SelectedAction == 6: # посмотреть только файлы
+            ActionLsDir("-f")
+        elif SelectedAction == 7: # просмотр информации об операционной системе
+            ActionPrint("sys.version_info: ", sys.version_info)
+        elif SelectedAction == 8: # создатель программы
+            ActionPrint("Программу сию написал Гэндальф Белый, о мой юный подаван.")
+        elif SelectedAction == 9: # играть в викторину
+            victory.Victorina()
+        elif SelectedAction == 10: # мой банковский счет
+            use_functions.AccountManagement()
+        elif SelectedAction == 11: # смена рабочей директории (*необязательный пункт)
+            ActionChDir()
+        elif SelectedAction == 12: # выход
+            break
+        else:
+            ActionPrint("Ошибка, некорректный ввод.")
         SelectedAction = Invitation()
